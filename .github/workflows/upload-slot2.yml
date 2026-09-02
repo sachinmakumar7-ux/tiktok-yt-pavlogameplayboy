@@ -1,0 +1,95 @@
+name: "Upload Slot 2"
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "Channel ID to process"
+        required: true
+        default: "pavlogameplayboy"
+      dry_run:
+        description: "Perform dry run (do not upload to YouTube)"
+        type: boolean
+        required: false
+        default: false
+
+concurrency:
+  group: upload-${{ inputs.channel || 'pavlogameplayboy' }}-slot2
+  cancel-in-progress: false
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Restore Credentials and Secrets
+        env:
+          CLIENT_SECRET_B64: ${{ secrets.CHANNEL_PAVLOGAMEPLAYBOY_CLIENT_SECRET }}
+          TOKEN_B64: ${{ secrets.CHANNEL_PAVLOGAMEPLAYBOY_TOKEN }}
+          COOKIES_B64: ${{ secrets.TIKTOK_COOKIES }}
+        run: |
+          mkdir -p credentials tokens
+          if [ -n "$CLIENT_SECRET_B64" ]; then
+            echo "$CLIENT_SECRET_B64" | base64 -d > credentials/pavlogameplayboy_client_secret.json
+          fi
+          if [ -n "$TOKEN_B64" ]; then
+            echo "$TOKEN_B64" | base64 -d > tokens/pavlogameplayboy_token.json
+          fi
+          if [ -n "$COOKIES_B64" ]; then
+            echo "$COOKIES_B64" | base64 -d > cookies.txt
+          fi
+
+      - name: Execute Slot 2 Pipeline
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          DRY_FLAG=""
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            DRY_FLAG="--dry-run"
+          fi
+          python run.py --slot 2 --channel ${{ inputs.channel }} $DRY_FLAG
+
+      - name: Commit Database State
+        if: always()
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/
+          if ! git diff-index --quiet HEAD; then
+            for i in 1 2 3; do
+              git commit -m "Update DB state after slot 2 [skip ci]" && git pull --rebase origin main && git push && break || sleep 5
+            done
+          fi
+
+      - name: Upload Logs Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-slot2-${{ github.run_id }}
+          path: logs/
+          retention-days: 14
+          if-no-files-found: ignore
