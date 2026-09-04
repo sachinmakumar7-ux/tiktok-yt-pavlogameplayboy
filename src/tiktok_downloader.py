@@ -54,7 +54,22 @@ class TikTokDownloader:
         }
         known_seed_videos = {
             "pavlogameplayboy": [
-                "https://www.tiktok.com/@pavlogameplayboy/video/7680921837328403719"
+                "https://www.tiktok.com/@pavlogameplayboy/video/7681662287186349330",
+                "https://www.tiktok.com/@pavlogameplayboy/video/7681454434873969938",
+                "https://www.tiktok.com/@pavlogameplayboy/video/7681446881171623186",
+                "https://www.tiktok.com/@pavlogameplayboy/video/7681287656847805703",
+                "https://www.tiktok.com/@pavlogameplayboy/video/7680921837328403719",
+                "https://www.tiktok.com/@pavlogameplayboy/video/7680545461979188487",
+                "https://www.tiktok.com/@pavlogameplayboy/video/7680474823293799687",
+                "https://www.tiktok.com/@pavlogameplayboy/video/7680107614990011655",
+                "https://www.tiktok.com/@pavlogameplayboy/video/7680107552457215240",
+                "https://www.tiktok.com/@pavlogameplayboy/video/7679805265763503368",
+                "https://www.tiktok.com/@pavlogameplayboy/video/7679790604192173330",
+                "https://www.tiktok.com/@pavlogameplayboy/video/7679494996931792146",
+                "https://www.tiktok.com/@pavlogameplayboy/video/7679494756644228370",
+                "https://www.tiktok.com/@pavlogameplayboy/video/7679207204930456840",
+                "https://www.tiktok.com/@pavlogameplayboy/video/7679000921375837447",
+                "https://www.tiktok.com/@pavlogameplayboy/video/7678743932670430471"
             ]
         }
 
