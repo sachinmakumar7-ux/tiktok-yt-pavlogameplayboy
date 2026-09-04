@@ -1,6 +1,10 @@
 name: "Upload Slot 2"
 
 on:
+  schedule:
+    # 02:00 UTC daily (US Slot 2) & 03:30 UTC retry
+    - cron: "0 2 * * *"
+    - cron: "30 3 * * *"
   workflow_dispatch:
     inputs:
       channel:
@@ -71,7 +75,11 @@ jobs:
           if [ "${{ inputs.dry_run }}" = "true" ]; then
             DRY_FLAG="--dry-run"
           fi
-          python run.py --slot 2 --channel ${{ inputs.channel }} $DRY_FLAG
+          CHANNEL_NAME="${{ inputs.channel }}"
+          if [ -z "$CHANNEL_NAME" ]; then
+            CHANNEL_NAME="pavlogameplayboy"
+          fi
+          python run.py --slot 2 --channel "$CHANNEL_NAME" $DRY_FLAG
 
       - name: Commit Database State
         if: always()
